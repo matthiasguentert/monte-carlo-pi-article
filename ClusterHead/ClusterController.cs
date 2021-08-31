@@ -47,22 +47,11 @@ namespace ClusterHead
             return job.GetOutputStorageContainerUrl(storageAccount);
         }
 
-        public string GetInputContainerSasUrl()
-        {
-            var blobContainerClient = this.clusterService.GetBlobContainerClient("input-files");
-            var containerSasUri = blobContainerClient.GenerateSasUri(
-                Azure.Storage.Sas.BlobContainerSasPermissions.Read | Azure.Storage.Sas.BlobContainerSasPermissions.List,
-                DateTime.UtcNow.AddHours(1));
-
-            return containerSasUri.AbsoluteUri;
-        }
-
         public async Task<IEnumerable<string>> CreateTasksAsync(string jobId, IEnumerable<Unit> units)
         {
             var job = this.clusterService.GetJob(jobId);
             var taskIds = new List<string>();
             this.outputContainerSasUrl = await GetOuputContainerSasUrl(job);
-            var inputContainerSasUrl = GetInputContainerSasUrl();
 
             for (var i = 0; i < units.Count(); i++)
             {
@@ -79,9 +68,8 @@ namespace ClusterHead
                     {
                         new EnvironmentSetting("JOB_OUTPUT_CONTAINER_URI", this.outputContainerSasUrl)
                     },
-                    ResourceFiles = new List<ResourceFile> { ResourceFile.FromStorageContainerUrl(inputContainerSasUrl, blobPrefix: $"input-{i}.json") },
+                    ResourceFiles = new List<ResourceFile> { ResourceFile.FromAutoStorageContainer("input-files", blobPrefix: $"input-{i}.json") },
                     Constraints = new TaskConstraints(retentionTime: TimeSpan.FromDays(1)),
-                    //OutputFiles = await PrepareOutputFiles(cloudJob, path: id)
                 };
 
                 taskIds.Add(id);

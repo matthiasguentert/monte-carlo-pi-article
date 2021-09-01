@@ -7,7 +7,7 @@ namespace ClusterHead
 {
     public static class Tools
     {
-        public static decimal EvaluatePi(List<Unit> units)
+        public static decimal EvaluatePi(IEnumerable<Unit> units)
         {
             ulong circleHitsTotal = 0;
             ulong numRandomPointsTotal = 0;

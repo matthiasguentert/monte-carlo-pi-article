@@ -150,7 +150,7 @@ namespace ClusterHead
             }
         }
 
-        public async Task<List<Unit>> WaitForTasks(string jobId, IEnumerable<string> taskIds, TimeSpan timeout)
+        public async Task<IEnumerable<Unit>> WaitForTasks(string jobId, IEnumerable<string> taskIds, TimeSpan timeout)
         {
             // We use the task state monitor to monitor the state of our tasks -- in this case we will wait for them all to complete.
             var taskStateMonitor = this.clusterService.CreateTaskStateMonitor();

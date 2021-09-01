@@ -64,7 +64,6 @@ namespace Tests.ClusterHead
 
             // Assert
             tasks.Should().HaveCount(16);
-            clusterServiceMock.Verify(m => m.GetBlobContainerClient("input-files"), Times.Once);
             clusterServiceMock.Verify(m => m.GetStorageAccount(), Times.Once);
             jobMock.Verify(m => m.PrepareOutputStorageAsync(It.IsAny<CloudStorageAccount>()), Times.Once);
             jobMock.Verify(m => m.GetOutputStorageContainerUrl(It.IsAny<CloudStorageAccount>()), Times.Once);

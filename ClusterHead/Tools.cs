@@ -21,7 +21,7 @@ namespace ClusterHead
             return (decimal)circleHitsTotal / numRandomPointsTotal * 4.0m;
         }
 
-        public static List<Unit> GenerateUnits(ulong iterationsTotal, uint unitsTotal)
+        public static IList<Unit> GenerateUnits(ulong iterationsTotal, uint unitsTotal)
         {
             var stepSizeX = 2.0 / unitsTotal;
             var iterationsPerUnit = iterationsTotal / unitsTotal;

@@ -168,20 +168,21 @@ namespace ClusterHead
             {
                 Console.WriteLine($"## Task: {task.GetId()} ###########################################################");
 
+                var taskOutputStorage = new TaskOutputStorage(new Uri(this.outputContainerSasUrl), task.GetId());
+
                 //Read the standard out of the task
-                var standardOutFile = await task.GetNodeFileAsync(Constants.StandardOutFileName);
-                var standardOutText = await standardOutFile.ReadAsStringAsync();
+                var stdout = await taskOutputStorage.GetOutputAsync(TaskOutputKind.TaskLog, Constants.StandardOutFileName);
+                var stdoutText = new StreamReader(await stdout.OpenReadAsync()).ReadToEnd();
                 Console.WriteLine("Standard out:");
-                Console.WriteLine(standardOutText);
+                Console.WriteLine(stdoutText);
 
                 //Read the standard error of the task
-                var standardErrorFile = await task.GetNodeFileAsync(Constants.StandardErrorFileName);
-                var standardErrorText = await standardErrorFile.ReadAsStringAsync();
-
-                if (!string.IsNullOrEmpty(standardErrorText))
+                var stderr = await taskOutputStorage.GetOutputAsync(TaskOutputKind.TaskLog, Constants.StandardErrorFileName);
+                var stderrText = new StreamReader(await stderr.OpenReadAsync()).ReadToEnd();
+                if (!string.IsNullOrEmpty(stderrText))
                 {
                     Console.WriteLine("Standard error:");
-                    Console.WriteLine(standardErrorText);
+                    Console.WriteLine(stderrText);
                 }
 
                 Console.WriteLine();

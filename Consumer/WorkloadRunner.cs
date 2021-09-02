@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Batch.Conventions.Files;
+﻿using Microsoft.Azure.Batch;
+using Microsoft.Azure.Batch.Conventions.Files;
 using Shared.Model;
 using System;
 using System.Diagnostics;
@@ -48,14 +49,13 @@ namespace Consumer
                 Console.Error.WriteLine(e.ToString());
             }
 
-            var timestamp = DateTime.UtcNow.Ticks.ToString();
-
-            File.Copy(@"..\stdout.txt", destFileName: $@"..\stdout-{timestamp}.txt");
-            File.Copy(@"..\stderr.txt", destFileName: $@"..\stderr-{timestamp}.txt");
+            // Copying log files to working directory to prevent locking issues
+            File.Copy(sourceFileName: $@"..\{Constants.StandardOutFileName}", destFileName: Constants.StandardOutFileName);
+            File.Copy(sourceFileName: $@"..\{Constants.StandardErrorFileName}", destFileName: Constants.StandardErrorFileName);
 
             Task.WaitAll(
-                taskOutputStorage.SaveAsync(TaskOutputKind.TaskLog, $@"..\stdout-{timestamp}.txt"),
-                taskOutputStorage.SaveAsync(TaskOutputKind.TaskLog, $@"..\stderr-{timestamp}.txt"),
+                taskOutputStorage.SaveAsync(TaskOutputKind.TaskLog, Constants.StandardOutFileName),
+                taskOutputStorage.SaveAsync(TaskOutputKind.TaskLog, Constants.StandardErrorFileName),
                 taskOutputStorage.SaveAsync(TaskOutputKind.TaskOutput, @"output.txt"));
         }
     }

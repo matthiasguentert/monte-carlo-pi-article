@@ -108,7 +108,7 @@ namespace Tests.ClusterHead
             var controller = new ClusterController(clusterServiceMock.Object);
 
             // Act
-            await controller.CreateStaticPoolIfNotExists("staticpool1");
+            await controller.CreateStaticPoolIfNotExistsAsync("staticpool1", 1, 1);
 
             // Assert
             clusterServiceMock.Verify(m => m.CreatePool("staticpool1", "standard_a1", It.IsAny<VirtualMachineConfiguration>(), 1), Times.Once);

@@ -19,7 +19,7 @@ namespace Consumer
             stopwatch.Start();
 
             var random = new Random();
-            uint circleHits = 0;
+            ulong circleHits = 0;
 
             for (ulong i = 0; i < unit.NumRandomPoints; i++)
             {

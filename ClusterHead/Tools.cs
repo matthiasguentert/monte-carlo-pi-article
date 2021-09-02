@@ -1,12 +1,29 @@
 ﻿using Microsoft.Azure.Batch;
 using Microsoft.Azure.Batch.Common;
 using Shared.Model;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ClusterHead
 {
     public static class Tools
     {
+        public static string GetTotalCalculationTime(IEnumerable<Unit> units)
+        {
+            var totalElapsedMilliseconds = units.Sum(u => u.ElapsedMilliseconds);
+            var t = TimeSpan.FromMilliseconds(totalElapsedMilliseconds);
+
+            return string.Format("{0:D2}h:{1:D2}m:{2:D2}s:{3:D3}ms", t.Hours, t.Minutes, t.Seconds, t.Milliseconds);
+        }
+
+        public static string GetTotalRuntime(TimeSpan elapsed)
+        {
+            var t = TimeSpan.FromMilliseconds(elapsed.TotalMilliseconds);
+
+            return string.Format("{0:D2}h:{1:D2}m:{2:D2}s:{3:D3}ms", t.Hours, t.Minutes, t.Seconds, t.Milliseconds);
+        }
+
         public static decimal CalculatePi(IEnumerable<Unit> units)
         {
             ulong circleHitsTotal = 0;

@@ -159,55 +159,54 @@ namespace ClusterHead
             var controlParams = new ODATAMonitorControl() { DelayBetweenDataFetch = TimeSpan.FromSeconds(3) };
             taskStateMonitor.WaitAll(tasks, TaskState.Completed, timeout, controlParams);
         }
-
-        public async Task PrintTaskOutputAsync(string jobId)
+    
+        public async Task<IEnumerable<Unit>> RetrieveOutputData(string jobId)
         {
-            var tasks = await this.clusterService.GetTasksAsync(jobId);
-            
+            var tasks = await clusterService.GetTasksAsync(jobId);
+            var result = new List<Unit>();
+
             foreach (var task in tasks)
             {
-                Console.WriteLine($"## Task: {task.GetId()} ###########################################################");
+                Console.WriteLine("######################################################");
+                Console.WriteLine($"Task: {task.GetId()}");
+                Console.WriteLine("######################################################");
 
                 var taskOutputStorage = new TaskOutputStorage(new Uri(this.outputContainerSasUrl), task.GetId());
 
-                //Read the standard out of the task
                 var stdout = await taskOutputStorage.GetOutputAsync(TaskOutputKind.TaskLog, Constants.StandardOutFileName);
-                var stdoutText = new StreamReader(await stdout.OpenReadAsync()).ReadToEnd();
+                var stdoutText = await ReadOutputFileReferenceAsync(stdout);
                 Console.WriteLine("Standard out:");
                 Console.WriteLine(stdoutText);
 
-                //Read the standard error of the task
                 var stderr = await taskOutputStorage.GetOutputAsync(TaskOutputKind.TaskLog, Constants.StandardErrorFileName);
-                var stderrText = new StreamReader(await stderr.OpenReadAsync()).ReadToEnd();
+                var stderrText = await ReadOutputFileReferenceAsync(stderr);
                 if (!string.IsNullOrEmpty(stderrText))
                 {
                     Console.WriteLine("Standard error:");
                     Console.WriteLine(stderrText);
                 }
 
+                var output = await taskOutputStorage.GetOutputAsync(TaskOutputKind.TaskOutput, "output.txt");
+                var outputText = await ReadOutputFileReferenceAsync(output);
+                Console.WriteLine("Output:");
+                Console.WriteLine(outputText);
+
+                var unit = JsonSerializer.Deserialize<Unit>(outputText);
+
+                result.Add(unit);
+
+                Console.WriteLine("######################################################");
                 Console.WriteLine();
             }
+
+            return result;
         }
-    
-        public async Task<IEnumerable<Unit>> RetrieveOutputData(string jobId)
+
+        public async Task<string> ReadOutputFileReferenceAsync(OutputFileReference outputFileReference)
         {
-            var tasks = await clusterService.GetTasksAsync(jobId);
-            var units = new List<Unit>();
-
-            foreach (var task in tasks)
-            {
-                var taskOutputStorage = new TaskOutputStorage(new Uri(this.outputContainerSasUrl), task.GetId());
-                var output = await taskOutputStorage.GetOutputAsync(TaskOutputKind.TaskOutput, "output.txt");
-
-                var stream = await output.OpenReadAsync();
-                var reader = new StreamReader(stream);
-                var unitAsJson = reader.ReadToEnd();
-
-                var unit = JsonSerializer.Deserialize<Unit>(unitAsJson);
-                units.Add(unit);
-            }
-
-            return units;
+            var stream = await outputFileReference.OpenReadAsync();   
+            
+            return new StreamReader(stream).ReadToEnd();
         }
     }
 }

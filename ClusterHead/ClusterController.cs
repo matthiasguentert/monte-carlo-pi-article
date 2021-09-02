@@ -163,8 +163,9 @@ namespace ClusterHead
                 boundTasks.Add(cloudTask);
             }
 
-            // Wait until the tasks are in completed state.
-            await taskStateMonitor.WhenAll(boundTasks, TaskState.Completed, timeout);
+            // Wait until all tasks are in complete state, check every 3 seconds
+            var controlParams = new ODATAMonitorControl() { DelayBetweenDataFetch = TimeSpan.FromSeconds(3) };
+            taskStateMonitor.WaitAll(boundTasks, TaskState.Completed, timeout, controlParams);
 
             // dump task output
             foreach (var task in boundTasks)

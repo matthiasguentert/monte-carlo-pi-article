@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Azure.Batch.Conventions.Files;
+using Microsoft.WindowsAzure.Storage;
 
 namespace Consumer
 {

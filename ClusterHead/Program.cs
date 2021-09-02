@@ -27,7 +27,8 @@ namespace ClusterHead
             var controller = new ClusterController(new ClusterService(appConfig));
 
             // Create a static pool 
-            //controller.CreateStaticPool("staticpool-1");
+            Console.WriteLine("Trying to create static pool...");
+            await controller.CreateStaticPoolIfNotExistsAsync("staticpool-2", targetLowPriorityComputeNodes: 4, taskSlotsPerNode: 1);
 
             // Serialize & upload input data
             Console.WriteLine("Uploading resource files...");
@@ -37,23 +38,26 @@ namespace ClusterHead
             var jobId = Guid.NewGuid().ToString();
 
             Console.WriteLine("Creating the job...");
-            await controller.CreateJobAsync(jobId);
+            await controller.CreateJobAsync(jobId, useStaticPool: true, poolId: "staticpool-2");
 
             // Create the tasks 
             Console.WriteLine("Creating the tasks...");
             var taskIds = await controller.CreateTasksAsync(jobId, units);
 
-            // Wait for all tasks to finish, print stdout, stderr, download output file and deserialize results
+            // Wait for all tasks to finish
             Console.WriteLine("Waiting for tasks to complete...");
-            await controller.WaitForTasks(jobId, taskIds, timeout: TimeSpan.FromMinutes(15));
+            await controller.WaitForTasks(jobId, timeout: TimeSpan.FromMinutes(15));
 
+            // Print stdout & stderr
             Console.WriteLine("Retrieving stdout & stderr from tasks...");
-            await controller.DumpTaskOutputAsync(jobId);
+            await controller.PrintTaskOutputAsync(jobId);
 
-            // Aggregating the results
+            // Download output files, deserialize and aggregate the results
             var calculatedUnits = await controller.RetrieveOutputData(jobId);
-            var estimatedPi = Tools.EvaluatePi(calculatedUnits);
+            var estimatedPi = Tools.CalculatePi(calculatedUnits);
+
             Console.WriteLine($"Estimated PI: {estimatedPi}");
+            Console.WriteLine($"Math.Pi: {Math.PI}");
         }
     }
 }

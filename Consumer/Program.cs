@@ -1,10 +1,9 @@
-﻿using Shared.Model;
+﻿using Microsoft.Azure.Batch.Conventions.Files;
+using Shared.Model;
 using System;
-using System.Text.Json;
 using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Azure.Batch.Conventions.Files;
-using Microsoft.WindowsAzure.Storage;
 
 namespace Consumer
 {
@@ -31,7 +30,7 @@ namespace Consumer
                 Console.WriteLine($"Starting to work on: {unit}");
                 var result = WorkloadRunner.GenerateRandomPoints(unit);
                 Console.WriteLine($"Finished task in {result.ElapsedMilliseconds} [ms] with {result.CircleHits} circle hits");
-                
+
                 Console.WriteLine("Uploading task output & logs...");
                 var taskId = Environment.GetEnvironmentVariable("AZ_BATCH_TASK_ID");
                 var jobOutputContainerUri = Environment.GetEnvironmentVariable("JOB_OUTPUT_CONTAINER_URI");

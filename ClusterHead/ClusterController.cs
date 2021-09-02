@@ -110,12 +110,12 @@ namespace ClusterHead
             }
         }
 
-        public async Task CreateStaticPoolAsync(string poolId)
+        public async Task CreateStaticPoolIfNotExistsAsync(string poolId, int targetLowPriorityComputeNodes, int taskSlotsPerNode)
         {
             var imageReference = new ImageReference(
-                    offer: "windowsserver",
-                    publisher: "microsoftwindowsserver",
-                    sku: Sku.DATACENTER_SMALLDISK_2012_R2);
+                    Offer.WINDOWSSERVER,
+                    Publisher.MICROSOFTWINDOWSSERVER,
+                    Sku.DATACENTER_SMALLDISK_2012_R2);
 
             var applications = new List<ApplicationPackageReference>()
             {
@@ -127,13 +127,13 @@ namespace ClusterHead
                 var vmConfiguration = new VirtualMachineConfiguration(imageReference, nodeAgentSkuId: "batch.node.windows amd64");
 
                 var pool = this.clusterService.CreatePool(
-                    poolId: poolId,
-                    virtualMachineSize: "standard_a1",
-                    virtualMachineConfiguration: vmConfiguration,
-                    targetLowPriorityComputeNodes: 1);
+                    poolId,
+                    VirtualMachineSize.STANDARD_A1,
+                    vmConfiguration,
+                    targetLowPriorityComputeNodes);
 
                 pool.SetApplicationPackageReferences(applications);
-                pool.SetTaskSlotsPerNode(2);
+                pool.SetTaskSlotsPerNode(taskSlotsPerNode);
 
                 await pool.CommitAsync();
             }
@@ -150,7 +150,7 @@ namespace ClusterHead
             }
         }
 
-        public async Task WaitForTasks(string jobId, IEnumerable<string> taskIds, TimeSpan timeout)
+        public async Task WaitForTasks(string jobId, TimeSpan timeout)
         {
             var taskStateMonitor = this.clusterService.CreateTaskStateMonitor();
             var tasks = await this.clusterService.GetTasksAsync(jobId);
@@ -160,7 +160,7 @@ namespace ClusterHead
             taskStateMonitor.WaitAll(tasks, TaskState.Completed, timeout, controlParams);
         }
 
-        public async Task DumpTaskOutputAsync(string jobId)
+        public async Task PrintTaskOutputAsync(string jobId)
         {
             var tasks = await this.clusterService.GetTasksAsync(jobId);
             

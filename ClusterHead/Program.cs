@@ -49,7 +49,7 @@ namespace ClusterHead
 
             // Wait for all tasks to finish
             Console.WriteLine("Waiting for tasks to complete...");
-            await controller.WaitForTasks(jobId, timeout: TimeSpan.FromMinutes(15));
+            await controller.WaitForTasks(jobId, timeout: TimeSpan.FromMinutes(30));
             stopwatch.Stop();
 
             // Download files, deserialize and aggregate the results

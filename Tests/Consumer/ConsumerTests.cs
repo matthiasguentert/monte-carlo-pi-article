@@ -24,10 +24,10 @@ namespace Tests.Consumer
             };
 
             // Act
-            WorkloadRunner.Execute(unit);
+            var result = WorkloadRunner.GenerateRandomPoints(unit);
 
             // Assert 
-            unit.CircleHits.Should().NotBe(0);
+            result.CircleHits.Should().NotBe(0);
         }
 
         [Theory]

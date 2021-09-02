@@ -12,7 +12,7 @@ namespace Consumer
     {
         public static bool IsInCircle(double x, double y) => x * x + y * y <= 1.0;
 
-        public static void Execute(Unit unit)
+        public static Unit GenerateRandomPoints(Unit unit)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -32,6 +32,8 @@ namespace Consumer
 
             unit.ElapsedMilliseconds = stopwatch.ElapsedMilliseconds;
             unit.CircleHits = circleHits;
+
+            return unit;
         }
 
         public static void UploadTaskOutput(Unit unit, TaskOutputStorage taskOutputStorage)

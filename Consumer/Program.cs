@@ -28,8 +28,8 @@ namespace Consumer
                 var unit = JsonSerializer.Deserialize<Unit>(jsonInput);
 
                 Console.WriteLine($"Starting to work on: {unit}");
-                WorkloadRunner.Execute(unit);
-                Console.WriteLine($"Finished task in {unit.ElapsedMilliseconds} [ms] with {unit.CircleHits} circle hits");
+                var result = WorkloadRunner.GenerateRandomPoints(unit);
+                Console.WriteLine($"Finished task in {result.ElapsedMilliseconds} [ms] with {result.CircleHits} circle hits");
                 
                 Console.WriteLine("Uploading task output & logs...");
                 var taskId = Environment.GetEnvironmentVariable("AZ_BATCH_TASK_ID");
@@ -49,7 +49,7 @@ namespace Consumer
                     Environment.Exit(1);
                 }
 
-                WorkloadRunner.UploadTaskOutput(unit, taskOutputStorage);
+                WorkloadRunner.UploadTaskOutput(result, taskOutputStorage);
 
             }
             catch (Exception e)

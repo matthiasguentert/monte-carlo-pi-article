@@ -45,9 +45,13 @@ namespace ClusterHead
 
             // Wait for all tasks to finish, print stdout, stderr, download output file and deserialize results
             Console.WriteLine("Waiting for tasks to complete...");
-            var calculatedUnits = await controller.WaitForTasks(jobId, taskIds, timeout: TimeSpan.FromMinutes(15));
+            await controller.WaitForTasks(jobId, taskIds, timeout: TimeSpan.FromMinutes(15));
+
+            Console.WriteLine("Retrieving stdout & stderr from tasks...");
+            await controller.DumpTaskOutputAsync(jobId);
 
             // Aggregating the results
+            var calculatedUnits = await controller.RetrieveOutputData(jobId);
             var estimatedPi = Tools.EvaluatePi(calculatedUnits);
             Console.WriteLine($"Estimated PI: {estimatedPi}");
         }

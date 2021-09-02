@@ -4,6 +4,7 @@ using Microsoft.Azure.Batch;
 using Microsoft.Azure.Batch.Auth;
 using Microsoft.WindowsAzure.Storage;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ClusterHead
 {
@@ -63,9 +64,19 @@ namespace ClusterHead
             return this.blobServiceClient.GetBlobContainerClient(containerName);
         }
 
-        public void AddTask(string jobId, IEnumerable<CloudTask> tasksToAdd)
+        public void AddTasks(string jobId, IEnumerable<CloudTask> tasksToAdd)
         {
             this.batchClient.JobOperations.AddTask(jobId, tasksToAdd);
+        }
+
+        public async Task<IEnumerable<ICloudTaskWrapper>> GetTasksAsync(string jobId)
+        {
+            var tasks = await this.batchClient.JobOperations.ListTasks(jobId).ToListAsync();
+            var wrappedTasks = new List<ICloudTaskWrapper>();
+
+            tasks.ForEach(t => wrappedTasks.Add(new CloudTaskWrapper(t)));
+
+            return wrappedTasks;
         }
 
         public ITaskStateMonitorWrapper CreateTaskStateMonitor()

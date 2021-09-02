@@ -3,6 +3,7 @@ using ClusterHead.Model;
 using Microsoft.Azure.Batch;
 using Microsoft.WindowsAzure.Storage;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ClusterHead
 {
@@ -18,7 +19,9 @@ namespace ClusterHead
 
         BlobContainerClient GetBlobContainerClient(string containerName);
 
-        void AddTask(string jobId, IEnumerable<CloudTask> tasksToAdd);
+        void AddTasks(string jobId, IEnumerable<CloudTask> tasksToAdd);
+
+        public Task<IEnumerable<ICloudTaskWrapper>> GetTasksAsync(string jobId);
 
         ITaskStateMonitorWrapper CreateTaskStateMonitor();
     }

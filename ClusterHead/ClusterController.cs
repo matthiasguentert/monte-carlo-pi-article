@@ -150,25 +150,21 @@ namespace ClusterHead
             }
         }
 
-        public async Task<IEnumerable<Unit>> WaitForTasks(string jobId, IEnumerable<string> taskIds, TimeSpan timeout)
+        public async Task WaitForTasks(string jobId, IEnumerable<string> taskIds, TimeSpan timeout)
         {
-            // We use the task state monitor to monitor the state of our tasks -- in this case we will wait for them all to complete.
             var taskStateMonitor = this.clusterService.CreateTaskStateMonitor();
-            var job = this.clusterService.GetJob(jobId);
-            var boundTasks = new List<ICloudTaskWrapper>();
-
-            foreach (var taskId in taskIds)
-            {
-                var cloudTask = await job.GetTaskAsync(taskId);
-                boundTasks.Add(cloudTask);
-            }
+            var tasks = await this.clusterService.GetTasksAsync(jobId);
 
             // Wait until all tasks are in complete state, check every 3 seconds
             var controlParams = new ODATAMonitorControl() { DelayBetweenDataFetch = TimeSpan.FromSeconds(3) };
-            taskStateMonitor.WaitAll(boundTasks, TaskState.Completed, timeout, controlParams);
+            taskStateMonitor.WaitAll(tasks, TaskState.Completed, timeout, controlParams);
+        }
 
-            // dump task output
-            foreach (var task in boundTasks)
+        public async Task DumpTaskOutputAsync(string jobId)
+        {
+            var tasks = await this.clusterService.GetTasksAsync(jobId);
+            
+            foreach (var task in tasks)
             {
                 Console.WriteLine($"## Task: {task.GetId()} ###########################################################");
 
@@ -190,14 +186,18 @@ namespace ClusterHead
 
                 Console.WriteLine();
             }
-
-            // Retrieve output data from tasks 
+        }
+    
+        public async Task<IEnumerable<Unit>> RetrieveOutputData(string jobId)
+        {
+            var tasks = await clusterService.GetTasksAsync(jobId);
             var units = new List<Unit>();
-            foreach (var task in boundTasks)
+
+            foreach (var task in tasks)
             {
                 var taskOutputStorage = new TaskOutputStorage(new Uri(this.outputContainerSasUrl), task.GetId());
                 var output = await taskOutputStorage.GetOutputAsync(TaskOutputKind.TaskOutput, "output.txt");
-                
+
                 var stream = await output.OpenReadAsync();
                 var reader = new StreamReader(stream);
                 var unitAsJson = reader.ReadToEnd();

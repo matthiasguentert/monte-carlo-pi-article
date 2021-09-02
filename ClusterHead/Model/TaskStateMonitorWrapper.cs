@@ -8,7 +8,9 @@ namespace ClusterHead.Model
 {
     public interface ITaskStateMonitorWrapper
     {
-        public Task WhenAll(List<ICloudTaskWrapper> cloudTasks, TaskState taskState, TimeSpan timeSpan);
+        public Task WhenAll(IEnumerable<ICloudTaskWrapper> cloudTasks, TaskState taskState, TimeSpan timeSpan);
+
+        public void WaitAll(IEnumerable<ICloudTaskWrapper> cloudTasks, TaskState taskState, TimeSpan timeSpan, ODATAMonitorControl controlParams = null);
     }
 
     public class TaskStateMonitorWrapper : ITaskStateMonitorWrapper
@@ -17,7 +19,18 @@ namespace ClusterHead.Model
 
         public TaskStateMonitorWrapper(TaskStateMonitor taskStateMonitor) => this.taskStateMonitor = taskStateMonitor;
 
-        public async Task WhenAll(List<ICloudTaskWrapper> cloudTasks, TaskState taskState, TimeSpan timeSpan)
+        public void WaitAll(IEnumerable<ICloudTaskWrapper> cloudTasks, TaskState taskState, TimeSpan timeSpan, ODATAMonitorControl controlParams = null)
+        {
+            var tasks = new List<CloudTask>();
+            foreach (var cloudTask in cloudTasks)
+            {
+                tasks.Add(cloudTask.CloudTask);
+            }
+
+            this.taskStateMonitor.WaitAll(tasks, taskState, timeSpan, controlParams);
+        }
+
+        public async Task WhenAll(IEnumerable<ICloudTaskWrapper> cloudTasks, TaskState taskState, TimeSpan timeSpan)
         {
             var tasks = new List<CloudTask>();
             foreach (var cloudTask in cloudTasks)

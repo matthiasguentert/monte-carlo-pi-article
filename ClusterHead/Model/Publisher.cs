@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Shared.Model
+﻿namespace ClusterHead.Model
 {
     public class Publisher
     {

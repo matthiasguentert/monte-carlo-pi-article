@@ -1,4 +1,4 @@
-﻿namespace Shared.Model
+﻿namespace ClusterHead.Model
 {
     public class Offer
     {

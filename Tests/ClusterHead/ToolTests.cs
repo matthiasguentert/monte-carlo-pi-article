@@ -62,6 +62,16 @@ namespace Tests.ClusterHead
         }
 
         [Fact]
+        public void GenerateUnits_Should_Throw_If_UnitsTotal_Not_PowerOfTwo()
+        {
+            // Arrange
+            Action act = () => Tools.GenerateUnits(iterationsTotal: ulong.MaxValue, unitsTotal: 12);
+
+            // Act & Assert
+            act.Should().Throw<InvalidOperationException>("unitsTotal should be a power of two");
+        }
+
+        [Fact]
         public void ShouldCalculatePi()
         {
             // Arrange

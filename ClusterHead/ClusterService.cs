@@ -1,5 +1,5 @@
 ﻿using Azure.Storage.Blobs;
-using ClusterHead.Model;
+using ClusterHead.Wrappers;
 using Microsoft.Azure.Batch;
 using Microsoft.Azure.Batch.Auth;
 using Microsoft.WindowsAzure.Storage;
@@ -82,8 +82,15 @@ namespace ClusterHead
         public ITaskStateMonitorWrapper CreateTaskStateMonitor()
         {
             var taskStateMonitor = this.batchClient.Utilities.CreateTaskStateMonitor();
-
+            
             return new TaskStateMonitorWrapper(taskStateMonitor);
+        }
+
+        public JobExecutionInformation GetJobExecutionInformation(string jobId)
+        {
+            var job = this.batchClient.JobOperations.GetJob(jobId);
+
+            return job.ExecutionInformation;
         }
     }
 }

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ClusterHead.Model
+namespace ClusterHead.Wrappers
 {
     public interface ITaskStateMonitorWrapper
     {

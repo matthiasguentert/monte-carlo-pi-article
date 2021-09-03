@@ -4,7 +4,7 @@ using Microsoft.Azure.Batch.Conventions.Files;
 using Microsoft.WindowsAzure.Storage;
 using System.Threading.Tasks;
 
-namespace ClusterHead.Model
+namespace ClusterHead.Wrappers
 {
     public interface ICloudJobWrapper 
     {

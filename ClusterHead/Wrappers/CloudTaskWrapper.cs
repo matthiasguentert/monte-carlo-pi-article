@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.Batch;
 using System.Threading.Tasks;
 
-namespace ClusterHead.Model
+namespace ClusterHead.Wrappers
 {
     public interface ICloudTaskWrapper
     {

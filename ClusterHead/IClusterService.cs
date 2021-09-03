@@ -1,5 +1,5 @@
 ﻿using Azure.Storage.Blobs;
-using ClusterHead.Model;
+using ClusterHead.Wrappers;
 using Microsoft.Azure.Batch;
 using Microsoft.WindowsAzure.Storage;
 using System.Collections.Generic;
@@ -24,5 +24,7 @@ namespace ClusterHead
         public Task<IEnumerable<ICloudTaskWrapper>> GetTasksAsync(string jobId);
 
         ITaskStateMonitorWrapper CreateTaskStateMonitor();
+
+        public JobExecutionInformation GetJobExecutionInformation(string jobId);
     }
 }

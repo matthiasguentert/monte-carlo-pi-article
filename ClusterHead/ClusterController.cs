@@ -1,5 +1,6 @@
 ﻿using Azure;
 using ClusterHead.Model;
+using ClusterHead.Wrappers;
 using Microsoft.Azure.Batch;
 using Microsoft.Azure.Batch.Common;
 using Microsoft.Azure.Batch.Conventions.Files;
@@ -16,7 +17,6 @@ namespace ClusterHead
 {
     public class ClusterController
     {
-        private string outputContainerSasUrl;
         private readonly IClusterService clusterService;
 
         public ClusterController(IClusterService clusterService) => this.clusterService = clusterService;
@@ -39,6 +39,11 @@ namespace ClusterHead
             return job;
         }
 
+        public JobExecutionInformation GetJobExecutionInformation(string jobId)
+        {
+            return this.clusterService.GetJobExecutionInformation(jobId);
+        }
+
         public async Task<string> GetOuputContainerSasUrl(ICloudJobWrapper job)
         {
             var storageAccount = this.clusterService.GetStorageAccount();
@@ -50,8 +55,8 @@ namespace ClusterHead
         public async Task<IEnumerable<string>> CreateTasksAsync(string jobId, IEnumerable<Unit> units)
         {
             var job = this.clusterService.GetJob(jobId);
+            var outputContainerSasUrl = await GetOuputContainerSasUrl(job);
             var taskIds = new List<string>();
-            this.outputContainerSasUrl = await GetOuputContainerSasUrl(job);
 
             for (var i = 0; i < units.Count(); i++)
             {
@@ -66,7 +71,7 @@ namespace ClusterHead
                     },
                     EnvironmentSettings = new List<EnvironmentSetting>()
                     {
-                        new EnvironmentSetting("JOB_OUTPUT_CONTAINER_URI", this.outputContainerSasUrl)
+                        new EnvironmentSetting("JOB_OUTPUT_CONTAINER_URI", outputContainerSasUrl)
                     },
                     ResourceFiles = new List<ResourceFile> { ResourceFile.FromAutoStorageContainer("input-files", blobPrefix: $"input-{i}.json") },
                     Constraints = new TaskConstraints(retentionTime: TimeSpan.FromDays(1)),
@@ -128,7 +133,7 @@ namespace ClusterHead
 
                 var pool = this.clusterService.CreatePool(
                     poolId,
-                    VirtualMachineSize.STANDARD_A1,
+                    VirtualMachineSize.STANDARD_A2_V2,
                     vmConfiguration,
                     targetLowPriorityComputeNodes);
 
@@ -155,14 +160,16 @@ namespace ClusterHead
             var taskStateMonitor = this.clusterService.CreateTaskStateMonitor();
             var tasks = await this.clusterService.GetTasksAsync(jobId);
 
-            // Wait until all tasks are in complete state, check every 3 seconds
-            var controlParams = new ODATAMonitorControl() { DelayBetweenDataFetch = TimeSpan.FromSeconds(3) };
+            // Wait until all tasks are in complete state & define polling interval
+            var controlParams = new ODATAMonitorControl() { DelayBetweenDataFetch = TimeSpan.FromSeconds(10) };
             taskStateMonitor.WaitAll(tasks, TaskState.Completed, timeout, controlParams);
         }
     
         public async Task<IEnumerable<Unit>> RetrieveOutputData(string jobId)
         {
             var tasks = await clusterService.GetTasksAsync(jobId);
+            var job = this.clusterService.GetJob(jobId);
+            var outputContainerSasUrl = await GetOuputContainerSasUrl(job);
             var result = new List<Unit>();
 
             foreach (var task in tasks)
@@ -171,7 +178,7 @@ namespace ClusterHead
                 Console.WriteLine($"Task: {task.GetId()}");
                 Console.WriteLine("######################################################");
 
-                var taskOutputStorage = new TaskOutputStorage(new Uri(this.outputContainerSasUrl), task.GetId());
+                var taskOutputStorage = new TaskOutputStorage(new Uri(outputContainerSasUrl), task.GetId());
 
                 var stdout = await taskOutputStorage.GetOutputAsync(TaskOutputKind.TaskLog, Constants.StandardOutFileName);
                 var stdoutText = await ReadOutputFileReferenceAsync(stdout);

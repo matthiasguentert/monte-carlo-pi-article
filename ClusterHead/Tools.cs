@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Batch;
+﻿using ClusterHead.Model;
+using Microsoft.Azure.Batch;
 using Microsoft.Azure.Batch.Common;
 using Shared.Model;
 using System;
@@ -9,6 +10,13 @@ namespace ClusterHead
 {
     public static class Tools
     {
+        public static string GenerateJobId(string prefix, ulong iterationsTotal, uint unitsTotal)
+        {
+            var guid = Guid.NewGuid().ToString();
+
+            return $"{prefix}-{unitsTotal}-{iterationsTotal}-{guid.Substring(0, 4)}";
+        }
+
         public static string GetTotalCalculationTime(IEnumerable<Unit> units)
         {
             var totalElapsedMilliseconds = units.Sum(u => u.ElapsedMilliseconds);
@@ -40,6 +48,11 @@ namespace ClusterHead
 
         public static IList<Unit> GenerateUnits(ulong iterationsTotal, uint unitsTotal)
         {
+            if (Math.Sqrt(unitsTotal) % 2 != 0)
+            {
+                throw new InvalidOperationException("unitsTotal should be a power of two");
+            }
+
             var stepSizeX = 2.0 / unitsTotal;
             var iterationsPerUnit = iterationsTotal / unitsTotal;
             var units = new List<Unit>();
@@ -69,9 +82,9 @@ namespace ClusterHead
         public static PoolInformation UseAutoPool()
         {
             var imageReference = new ImageReference(
-                    offer: "windowsserver",
-                    publisher: "microsoftwindowsserver",
-                    sku: Sku.DATACENTER_SMALLDISK_2012_R2);
+                    Offer.WINDOWSSERVER,
+                    Publisher.MICROSOFTWINDOWSSERVER,
+                    Sku.DATACENTER_SMALLDISK_2012_R2);
 
             var applications = new List<ApplicationPackageReference>()
             {
@@ -84,7 +97,7 @@ namespace ClusterHead
                 TargetLowPriorityComputeNodes = 1,
                 TaskSlotsPerNode = 2,
                 VirtualMachineConfiguration = new VirtualMachineConfiguration(imageReference, nodeAgentSkuId: "batch.node.windows amd64"),
-                VirtualMachineSize = "standard_a1"
+                VirtualMachineSize = VirtualMachineSize.STANDARD_A1
             };
 
             var autoPoolSpecification = new AutoPoolSpecification

@@ -67,19 +67,18 @@ namespace Tests.ClusterHead
             // Arrange
             var units = new List<Unit>
             {
-                new Unit() { NumRandomPoints = 8589934590, CircleHits = 980949636 },
-                new Unit() { NumRandomPoints = 8589934590, CircleHits = 3922288210 },
-                new Unit() { NumRandomPoints = 8589934590, CircleHits = 3922249501 },
-                new Unit() { NumRandomPoints = 8589934590, CircleHits = 980865797 }
+                new Unit() { NumRandomPoints = 8589934590, CircleHits = 5275799930 },
+                new Unit() { NumRandomPoints = 8589934590, CircleHits = 8217225901 },
+                new Unit() { NumRandomPoints = 8589934590, CircleHits = 8217225498 },
+                new Unit() { NumRandomPoints = 8589934590, CircleHits = 5275798973 }
             };
-
-            // TotalRandomPoints = 34359738360
-            // CircleHitsTotal =    9806353144
 
             // Act
             var pi = Tools.CalculatePi(units);
 
             // Assert
+            pi.Should().Be(3.1415897314766398005831613672M);
+            pi.Should().BeApproximately((decimal)Math.PI, 0.00001M);
         }
     }
 }

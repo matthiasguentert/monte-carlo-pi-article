@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Consumer": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Temp\\input-0.json"
+    }
+  }
+}

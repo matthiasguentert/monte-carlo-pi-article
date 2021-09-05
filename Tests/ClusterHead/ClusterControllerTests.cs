@@ -1,6 +1,7 @@
 ﻿using Azure.Storage.Blobs;
 using ClusterHead;
 using ClusterHead.Model;
+using ClusterHead.Wrappers;
 using FluentAssertions;
 using Microsoft.Azure.Batch;
 using Microsoft.WindowsAzure.Storage;
@@ -108,7 +109,7 @@ namespace Tests.ClusterHead
             var controller = new ClusterController(clusterServiceMock.Object);
 
             // Act
-            await controller.CreateStaticPoolIfNotExistsAsync("staticpool1", 1, 1);
+            await controller.CreateStaticPoolIfNotExistsAsync("staticpool1", VirtualMachineSize.STANDARD_A1, 1, 1);
 
             // Assert
             clusterServiceMock.Verify(m => m.CreatePool("staticpool1", "standard_a1", It.IsAny<VirtualMachineConfiguration>(), 1), Times.Once);

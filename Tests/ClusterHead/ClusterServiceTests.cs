@@ -1,4 +1,5 @@
 ﻿using ClusterHead;
+using ClusterHead.Model;
 using FluentAssertions;
 using Microsoft.Azure.Batch;
 using Shared.Model;
@@ -22,7 +23,7 @@ namespace Tests.ClusterHead
             var imageReference = new ImageReference(
                 offer: "windowsserver",
                 publisher: "microsoftwindowsserver",
-                sku: Sku.DATACENTER_SMALLDISK_2012_R2);
+                Sku.DATACENTER_SMALLDISK_2012_R2);
             var vmConfiguration = new VirtualMachineConfiguration(imageReference, nodeAgentSkuId: "batch.node.windows amd64");
             var clusterService = new ClusterServiceTest(batchClient);
 

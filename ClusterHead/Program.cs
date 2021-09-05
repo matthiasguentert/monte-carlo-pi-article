@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using ClusterHead.Model;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace ClusterHead
             var stopwatch = new Stopwatch();
 
             Console.WriteLine("Trying to create static pool...");
-            await controller.CreateStaticPoolIfNotExistsAsync(poolId, targetLowPriorityComputeNodes: 3, taskSlotsPerNode: 2);
+            await controller.CreateStaticPoolIfNotExistsAsync(poolId, VirtualMachineSize.STANDARD_A1_V2, targetLowPriorityComputeNodes: 6, taskSlotsPerNode: 1);
 
             Console.WriteLine("Uploading resource files...");
             await controller.UploadResourceFilesAsync(units, containerName: "input-files");
@@ -47,7 +48,7 @@ namespace ClusterHead
 
             Console.WriteLine("Retrieving output from tasks...");
             var calculatedUnits = await controller.RetrieveOutputData(jobId);
-                       
+        
             var estimatedPi = Tools.CalculatePi(calculatedUnits);
 
             Console.WriteLine($"Total calculation time: {Tools.GetTotalCalculationTime(calculatedUnits)}");

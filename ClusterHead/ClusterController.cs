@@ -115,7 +115,7 @@ namespace ClusterHead
             }
         }
 
-        public async Task CreateStaticPoolIfNotExistsAsync(string poolId, int targetLowPriorityComputeNodes, int taskSlotsPerNode)
+        public async Task CreateStaticPoolIfNotExistsAsync(string poolId, string vmSize, int targetLowPriorityComputeNodes, int taskSlotsPerNode)
         {
             var imageReference = new ImageReference(
                     Offer.WINDOWSSERVER,
@@ -133,7 +133,7 @@ namespace ClusterHead
 
                 var pool = this.clusterService.CreatePool(
                     poolId,
-                    VirtualMachineSize.STANDARD_A2_V2,
+                    vmSize,
                     vmConfiguration,
                     targetLowPriorityComputeNodes);
 

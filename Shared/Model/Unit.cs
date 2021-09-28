@@ -2,7 +2,9 @@
 {
     public class Unit
     {
-        public Area Area { get; set; }
+        public Square Square {  get; set; }
+
+        public Alignment Alignment {  get; set; }
 
         public ulong NumRandomPoints { get; set; }
 

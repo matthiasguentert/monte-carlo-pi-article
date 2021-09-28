@@ -46,37 +46,85 @@ namespace ClusterHead
             return (decimal)circleHitsTotal / numRandomPointsTotal * 4.0m;
         }
 
-        public static IList<Unit> GenerateUnits(ulong iterationsTotal, uint unitsTotal)
+        public static IList<Unit> GenerateSquareUnits(ulong iterationsTotal, uint unitsTotal)
         {
             if (Math.Sqrt(unitsTotal) % 2 != 0)
-            {
                 throw new InvalidOperationException("unitsTotal should be a power of two");
-            }
 
-            var stepSizeX = 2.0 / unitsTotal;
+            var stepSize = 2.0 / Math.Sqrt(unitsTotal);
             var iterationsPerUnit = iterationsTotal / unitsTotal;
             var units = new List<Unit>();
 
-            for (double boundaryX = -1.0; boundaryX < 1.0; boundaryX += stepSizeX)
+            for (double y = 1; y > -1; y -= stepSize)
             {
-                var area = new Area
+                for (double x = -1; x < 1; x += stepSize)
                 {
-                    LowerX = boundaryX,
-                    UpperX = boundaryX + stepSizeX,
-                    LowerY = -1.0,
-                    UpperY = 1.0
-                };
+                    var s = new Square1
+                    {
+                        Points = new List<Point>
+                        {
+                            new Point(x, y),
+                            new Point(x + stepSize, y),
+                            new Point(x, y - stepSize),
+                            new Point(x + stepSize, y - stepSize)
+                        }
+                    };
+                    
 
-                var unit = new Unit
-                {
-                    Area = area,
-                    NumRandomPoints = iterationsPerUnit
-                };
+                    var square = new Square
+                    {
+                        Point1 = (x, y),
+                        Point2 = (x + stepSize, y),
+                        Point3 = (x, y - stepSize),
+                        Point4 = (x + stepSize, y - stepSize)
+                    };
 
-                units.Add(unit);
+                    var unit = new Unit
+                    {
+                        Square = square,
+                        NumRandomPoints = iterationsPerUnit,
+                        Alignment = CalculateSquareAlignment(square)
+                    };
+                                   
+                    units.Add(unit);
+                }
             }
 
             return units;
+        }
+
+        public static Alignment CalculateSquareAlignment(Square square)
+        {
+            var inside = 0;
+            var outside = 0;
+
+            if (square.Point1.x * square.Point1.x + square.Point1.y * square.Point1.y <= 1.0)
+                inside++;
+            else 
+                outside++;
+
+            if (square.Point2.x * square.Point2.x + square.Point2.y * square.Point2.y <= 1.0)
+                inside++;
+            else
+                outside++;
+
+            if (square.Point3.x * square.Point3.x + square.Point3.y * square.Point3.y <= 1.0)
+                inside++;
+            else
+                outside++;
+
+            if (square.Point4.x * square.Point4.x + square.Point4.y * square.Point4.y <= 1.0)
+                inside++;
+            else
+                outside++;
+
+            if (inside == 4)
+                return Alignment.SquareInsideCircle;
+
+            if (outside == 4)
+                return Alignment.SquareOutsideCircle;
+
+            return Alignment.SquareOverlapsCircle;
         }
 
         public static PoolInformation UseAutoPool()

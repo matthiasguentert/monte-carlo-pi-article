@@ -4,6 +4,7 @@ using Shared.Model;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using Xunit;
 
@@ -45,27 +46,63 @@ namespace Tests.ClusterHead
         }
 
         [Fact]
-        public void ShouldGenerateUnits()
+        public void ShouldGenerateSquareUnits()
         {
             // Arrange & Act
-            var units = Tools.GenerateUnits(iterationsTotal: ulong.MaxValue, unitsTotal: 16);
+            var units = Tools.GenerateSquareUnits(iterationsTotal: ulong.MaxValue, unitsTotal: 16);
 
             // Assert
             units.Should().HaveCount(16);
-
+            
             units[0].NumRandomPoints.Should().Be(1152921504606846975);
+            units[0].Square.Point1.Should().Be((-1.0, 1.0));
+            units[0].Square.Point2.Should().Be((-0.5, 1.0));
+            units[0].Square.Point3.Should().Be((-1.0, 0.5));
+            units[0].Square.Point4.Should().Be((-0.5, 0.5));
+            units[0].Alignment.Should().Be(Alignment.SquareOverlapsCircle);
 
-            units[0].Area.LowerY.Should().Be(-1);
-            units[0].Area.UpperY.Should().Be(1);
-            units[0].Area.LowerX.Should().Be(-1);
-            units[0].Area.UpperX.Should().Be(-0.875);
+            units[5].NumRandomPoints.Should().Be(1152921504606846975);
+            units[5].Square.Point1.Should().Be((-0.5, 0.5));
+            units[5].Square.Point2.Should().Be(( 0.0, 0.5));
+            units[5].Square.Point3.Should().Be((-0.5, 0.0));
+            units[5].Square.Point4.Should().Be(( 0.0, 0.0));
+            units[5].Alignment.Should().Be(Alignment.SquareInsideCircle);
+
+            units[15].NumRandomPoints.Should().Be(1152921504606846975);
+            units[15].Square.Point1.Should().Be((0.5, -0.5));
+            units[15].Square.Point2.Should().Be((1.0, -0.5));
+            units[15].Square.Point3.Should().Be((0.5, -1.0));
+            units[15].Square.Point4.Should().Be((1.0, -1.0));
+            units[15].Alignment.Should().Be(Alignment.SquareOverlapsCircle);
+        }
+
+        [Theory]
+        [InlineData(16, 0, 12, 4)]
+        [InlineData(64, 4, 28, 32)]
+        [InlineData(256, 32, 60, 164)]
+        public void ShouldCalculateSquareAlignment(uint unitsTotal, int expectedOut, int expectedOverlap, int expectedIn)
+        {
+            // Arrange
+            var units = Tools.GenerateSquareUnits(iterationsTotal: ulong.MaxValue, unitsTotal: unitsTotal);
+            var results = new List<Alignment>();
+
+            // Act
+            foreach (var unit in units)
+            {
+                results.Add(Tools.CalculateSquareAlignment(unit.Square));
+            }
+
+            // Assert
+            results.Count(r => r == Alignment.SquareOutsideCircle).Should().Be(expectedOut);
+            results.Count(r => r == Alignment.SquareOverlapsCircle).Should().Be(expectedOverlap);
+            results.Count(r => r == Alignment.SquareInsideCircle).Should().Be(expectedIn);
         }
 
         [Fact]
-        public void GenerateUnits_Should_Throw_If_UnitsTotal_Not_PowerOfTwo()
+        public void GenerateSquareUnits_Should_Throw_If_UnitsTotal_Not_PowerOfTwo()
         {
             // Arrange
-            Action act = () => Tools.GenerateUnits(iterationsTotal: ulong.MaxValue, unitsTotal: 12);
+            Action act = () => Tools.GenerateSquareUnits(iterationsTotal: ulong.MaxValue, unitsTotal: 12);
 
             // Act & Assert
             act.Should().Throw<InvalidOperationException>("unitsTotal should be a power of two");
@@ -92,3 +129,4 @@ namespace Tests.ClusterHead
         }
     }
 }
+

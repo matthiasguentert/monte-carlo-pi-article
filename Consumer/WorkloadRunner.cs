@@ -26,6 +26,9 @@ namespace Consumer
                 var x = random.NextDouble() * (unit.Area.UpperX - unit.Area.LowerX) + unit.Area.LowerX;
                 var y = random.NextDouble() * (unit.Area.UpperY - unit.Area.LowerY) + unit.Area.LowerY;
 
+                // x: p1(x)..p4(x)
+                // y: p4(y)..p1(y)
+
                 if (IsInCircle(x, y))
                     circleHits++;
             }

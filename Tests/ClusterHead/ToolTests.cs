@@ -3,9 +3,7 @@ using FluentAssertions;
 using Shared.Model;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using Xunit;
 
 namespace Tests.ClusterHead
@@ -55,24 +53,24 @@ namespace Tests.ClusterHead
             units.Should().HaveCount(16);
             
             units[0].NumRandomPoints.Should().Be(1152921504606846975);
-            units[0].Square.Point1.Should().Be((-1.0, 1.0));
-            units[0].Square.Point2.Should().Be((-0.5, 1.0));
-            units[0].Square.Point3.Should().Be((-1.0, 0.5));
-            units[0].Square.Point4.Should().Be((-0.5, 0.5));
+            units[0].Square.Points[0].Should().Be((-1.0, 1.0));
+            units[0].Square.Points[1].Should().Be((-0.5, 1.0));
+            units[0].Square.Points[2].Should().Be((-1.0, 0.5));
+            units[0].Square.Points[3].Should().Be((-0.5, 0.5));
             units[0].Alignment.Should().Be(Alignment.SquareOverlapsCircle);
 
             units[5].NumRandomPoints.Should().Be(1152921504606846975);
-            units[5].Square.Point1.Should().Be((-0.5, 0.5));
-            units[5].Square.Point2.Should().Be(( 0.0, 0.5));
-            units[5].Square.Point3.Should().Be((-0.5, 0.0));
-            units[5].Square.Point4.Should().Be(( 0.0, 0.0));
+            units[5].Square.Points[0].Should().Be((-0.5, 0.5));
+            units[5].Square.Points[1].Should().Be(( 0.0, 0.5));
+            units[5].Square.Points[2].Should().Be((-0.5, 0.0));
+            units[5].Square.Points[3].Should().Be(( 0.0, 0.0));
             units[5].Alignment.Should().Be(Alignment.SquareInsideCircle);
 
             units[15].NumRandomPoints.Should().Be(1152921504606846975);
-            units[15].Square.Point1.Should().Be((0.5, -0.5));
-            units[15].Square.Point2.Should().Be((1.0, -0.5));
-            units[15].Square.Point3.Should().Be((0.5, -1.0));
-            units[15].Square.Point4.Should().Be((1.0, -1.0));
+            units[15].Square.Points[0].Should().Be((0.5, -0.5));
+            units[15].Square.Points[1].Should().Be((1.0, -0.5));
+            units[15].Square.Points[2].Should().Be((0.5, -1.0));
+            units[15].Square.Points[3].Should().Be((1.0, -1.0));
             units[15].Alignment.Should().Be(Alignment.SquareOverlapsCircle);
         }
 

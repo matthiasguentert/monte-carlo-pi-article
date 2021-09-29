@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ClusterHead
@@ -22,7 +23,10 @@ namespace ClusterHead
             Console.WriteLine(appConfig);
 
             Console.WriteLine("Generating work units...");
-            var units = Tools.GenerateUnits(appConfig.IterationsTotal, appConfig.UnitsTotal);
+            var allUnits = Tools.GenerateSquareUnits(appConfig.IterationsTotal, appConfig.UnitsTotal);
+
+            // Only 
+            var units = allUnits.Where(a => a.Alignment == Shared.Model.Alignment.SquareOverlapsCircle);
 
             var jobId = Tools.GenerateJobId("estimate-pi", appConfig.IterationsTotal, appConfig.UnitsTotal);
             var poolId = "staticpool-1";

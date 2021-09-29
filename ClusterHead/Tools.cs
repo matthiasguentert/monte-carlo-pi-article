@@ -46,7 +46,7 @@ namespace ClusterHead
             return (decimal)circleHitsTotal / numRandomPointsTotal * 4.0m;
         }
 
-        public static IList<Unit> GenerateSquareUnits(ulong iterationsTotal, uint unitsTotal)
+        public static List<Unit> GenerateSquareUnits(ulong iterationsTotal, uint unitsTotal)
         {
             if (Math.Sqrt(unitsTotal) % 2 != 0)
                 throw new InvalidOperationException("unitsTotal should be a power of two");
@@ -59,7 +59,7 @@ namespace ClusterHead
             {
                 for (double x = -1; x < 1; x += stepSize)
                 {
-                    var s = new Square1
+                    var square = new Square
                     {
                         Points = new List<Point>
                         {
@@ -68,15 +68,6 @@ namespace ClusterHead
                             new Point(x, y - stepSize),
                             new Point(x + stepSize, y - stepSize)
                         }
-                    };
-                    
-
-                    var square = new Square
-                    {
-                        Point1 = (x, y),
-                        Point2 = (x + stepSize, y),
-                        Point3 = (x, y - stepSize),
-                        Point4 = (x + stepSize, y - stepSize)
                     };
 
                     var unit = new Unit
@@ -98,25 +89,13 @@ namespace ClusterHead
             var inside = 0;
             var outside = 0;
 
-            if (square.Point1.x * square.Point1.x + square.Point1.y * square.Point1.y <= 1.0)
-                inside++;
-            else 
-                outside++;
-
-            if (square.Point2.x * square.Point2.x + square.Point2.y * square.Point2.y <= 1.0)
-                inside++;
-            else
-                outside++;
-
-            if (square.Point3.x * square.Point3.x + square.Point3.y * square.Point3.y <= 1.0)
-                inside++;
-            else
-                outside++;
-
-            if (square.Point4.x * square.Point4.x + square.Point4.y * square.Point4.y <= 1.0)
-                inside++;
-            else
-                outside++;
+            square.Points.ForEach(p =>
+            {
+                if (Math.Pow(p.X, 2) + Math.Pow(p.Y, 2) <= 1.0)
+                    inside++;
+                else
+                    outside++;
+            });
 
             if (inside == 4)
                 return Alignment.SquareInsideCircle;

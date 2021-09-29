@@ -14,7 +14,7 @@
 
         public override string ToString()
         {
-            return $"Area: {Area} NumRandomPoints: {NumRandomPoints}";
+            return $"Square: {Square} NumRandomPoints: {NumRandomPoints}";
         }
     }
 }

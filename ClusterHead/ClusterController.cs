@@ -52,13 +52,13 @@ namespace ClusterHead
             return job.GetOutputStorageContainerUrl(storageAccount);
         }
 
-        public async Task<IEnumerable<string>> CreateTasksAsync(string jobId, IEnumerable<Unit> units)
+        public async Task<IEnumerable<string>> CreateTasksAsync(string jobId, List<Unit> units)
         {
             var job = this.clusterService.GetJob(jobId);
             var outputContainerSasUrl = await GetOuputContainerSasUrl(job);
             var taskIds = new List<string>();
 
-            for (var i = 0; i < units.Count(); i++)
+            for (var i = 0; i < units.Count; i++)
             {
                 var id = $"task-{i}";
 
@@ -84,7 +84,7 @@ namespace ClusterHead
             return taskIds;
         }
 
-        public async Task UploadResourceFilesAsync(IEnumerable<Unit> units, string containerName)
+        public async Task UploadResourceFilesAsync(List<Unit> units, string containerName)
         {
             var blobContainerClient = this.clusterService.GetBlobContainerClient(containerName);
             try
@@ -96,11 +96,13 @@ namespace ClusterHead
                 Console.WriteLine(e.Message);
             }
 
-            var unitsArray = units.ToArray();
-
             for (var i = 0; i < units.Count(); i++)
             {
-                var json = JsonSerializer.Serialize(unitsArray[i]);
+                // Only for squares requiring calculation!
+                if (units[i].Alignment != Alignment.SquareOverlapsCircle)
+                    continue;
+
+                var json = JsonSerializer.Serialize(units[i]);
                 using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(json));
 
                 try
